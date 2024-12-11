@@ -1,3 +1,33 @@
 body {
     padding: 10px;
 }
+
+.active-items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    padding: 0;
+}
+
+.item-details {
+    display: flex;
+    flex-shrink: inherit;
+    justify-content: center;
+    align-items: center;
+}
+
+.comment-button {
+    display: flex;
+    justify-content: end;
+    padding-top: 2px;
+}
+
+.user-comments {
+    display: flex;
+    flex-shrink: inherit;
+    flex-direction: column;
+}
+
+.card {
+    margin: 10px;
+}
