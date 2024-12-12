@@ -1,18 +1,17 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Category</h2>
     <div class="dropdown">
         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            Category
+                Category
         </button>
         <ul class="dropdown-menu">
             {% for category in categories %}
-                <li><a class="dropdown-item" href="#">{{category.category}}</a></li>
+                <li><a class="dropdown-item" href="{% url 'items_in_category' category.category %}">{{ category.category }}</a></li>
             {% endfor %}
         </ul>       
       </div>
-
+    <hr>
     <section class="active-items">
         {% for item in items %}
             <a href="{% url 'item' item.pk %}">
@@ -21,7 +20,7 @@
                     <div class="card-body">
                     <h5 class="card-title">{{ item.title }}, {{ item.pk }}</h5>
                     <p class="card-text">{{ item.description }}</p>
-                    <a href="{% url 'item' item.id %}" class="btn btn-primary">{{ item.price }}</a>
+                    <a href="{% url 'item' item.id %}" class="btn btn-primary">${{ item.price }}</a>
                     </div>
                 </div>
             </a>

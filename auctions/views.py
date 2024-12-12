@@ -62,8 +62,16 @@ def category(request):
     all_categories = Item.objects.values("category").distinct()
 
     return render(request, "auctions/category.html", {
-        "items": Item.objects.filter(category=category),
         "categories": all_categories 
+    })
+
+
+def items_in_category(request, category):
+    all_categories = Item.objects.values("category").distinct()
+
+    return render(request, "auctions/category.html", {
+        "categories": all_categories,
+        "items": Item.objects.filter(category=category)
     })
 
 
