@@ -20,6 +20,7 @@
                         {% csrf_token %}
                         <input id="titlearea" type="text" name="title" value="${{ item.price }}" readonly>
                         <div class="bid-button">
+
                             <button class="btn btn-outline-secondary" type="submit">Close Bidding</button>
                         </div>
                     {% else %}
@@ -64,7 +65,7 @@
             {% endfor %}
         </section>
         <hr>
-        <form action="{% url 'item' item.id %}" method="post">
+        <form action="{% url 'comment' item.id %}" method="post">
             {% csrf_token %}
             {{ comment_form }}
             <div class="comment-button">

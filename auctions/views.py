@@ -147,6 +147,60 @@ def watchlist(request):
 
 
 @login_required
+def comment(request, item_id):
+    if request.method == "POST":
+        comment_form = CommentForm(request.POST)
+
+        if comment_form.is_valid():
+            comment = comment_form.cleaned_data["comment"]
+            commenter = request.user
+            item_commented = item_id
+
+            c = Comment(
+                comment=comment,
+                commenter=commenter,
+                item_commented=item_commented
+            )
+            c.save()
+    
+    return HttpResponseRedirect(reverse('item', args=[item_id]))
+
+
+@login_required
+def bidding(request, item_id, item_price):
+    if request.method == "POST":
+        bidding_form = BiddingForm(request.POST)
+
+        if bidding_form.is_valid() and float(bidding_form.cleaned_data["bid"]) > item_price:
+            bid = bidding_form.cleaned_data["bid"]
+            bidder = request.user
+            item_bid = item_id
+
+            b = Bid(
+                bid=bid,
+                bidder=bidder,
+                item_bid=item_bid
+            )
+            b.save()
+            return HttpResponseRedirect(reverse('item', args=[item_id]))
+        else:
+            return render(request, "auctions/item.html", {
+                "message": "Bid must be higher than the current price of the item"
+            })
+    return HttpResponseRedirect(reverse('item', args=[item_id]))
+
+
+@login_required
+def close_item(request, item_id):    
+    if request.method == "POST":
+        item = Item.objects.get(pk=item_id)
+        item.is_active = False
+        item.save()
+    
+    return HttpResponseRedirect(reverse('item', args=[item_id]))
+        
+
+@login_required
 def item(request, item_id):
     """Show the item details"""
     # Get the highest bid and details of the item
@@ -162,68 +216,21 @@ def item(request, item_id):
     # Initialized form
     _comment_form = CommentForm()
     _bidding_form = BiddingForm()
-    message = None 
+
+    user_watchlists = User.objects.values_list('watchlist', flat=True)
+    in_watchlist = False
+    if item.id in user_watchlists:
+        in_watchlist = True
+
     
-    # If user owns the item, allow the user to close the bid
-    if request.user == item.owner:
-        
-        if request.method == "POST":
-            # Close the item
-            item.is_active = False
-            item.save()
-
-            # Give message to the user that he won the item
-
-            # Comment to the item
-        
-        # Render the item details
-        message = "You own the item."
-        return render(request, "auctions/item.html", {
-            "comment_form": _comment_form,
-            "message": message,
-            "item": item,
-            "comments": Comment.objects.filter(item_commented=item_id),
-            "owner": True
-        })
-
-    # If other users
-    else:
-
-        # Render Form
-        if request.method == "POST":
-            comment_form = CommentForm(request.POST)
-            bidding_form = BiddingForm(request.POST)
-
-            # If input is valid, record it
-            if comment_form.is_valid():
-                comment = Comment(
-                    comment=comment_form.cleaned_data["comment"],
-                    commenter=request.user,
-                    item_commented=item
-                )
-                comment.save()
-                message = "You have commented."
-        
-            if bidding_form.is_valid() and bidding_form.cleaned_data["bid"] < item.price:
-                bid = bidding_form.cleaned_data["bid"],
-
-                bid = Bid(
-                    bid=bid,
-                    bidder=request.user,
-                    item_bid=item
-                )
-                bid.save()
-                
-                message = "Bid placed successfully."
-                return HttpResponseRedirect(reverse("item", args=[item_id]))
-
-        return render(request, "auctions/item.html", {
-            "comment_form": _comment_form,
-            "bidding_form": _bidding_form,
-            "message": message,
-            "item": item,
-            "comments": Comment.objects.filter(item_commented=item_id)
-        })
+    return render(request, "auctions/item.html", {
+        "comment_form": _comment_form,
+        "bidding_form": _bidding_form,
+        # "message": message,
+        "watchlist": in_watchlist,
+        "item": item,
+        "comments": Comment.objects.filter(item_commented=item_id)
+    })
 
         # Owner of the item must be able to delete their comments
 
@@ -264,6 +271,7 @@ def create(request):
 
 
         # Check if item is in watchlist
+
 
 def login_view(request):
 
