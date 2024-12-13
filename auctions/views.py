@@ -10,11 +10,54 @@ from django.db.models import Max
 from .models import Bid, Comment, Item, User 
 
 class CreateItem(forms.Form):
-    title = forms.CharField(label="Title", max_length=64, required=True)
-    description = forms.CharField(label="Description", max_length=350, required=True, widget=forms.Textarea)
-    image_url = forms.URLField(label="ImageURL", required=False)
-    price = forms.FloatField(label="Price", min_value=0.00, required=True)
-    category = forms.CharField(label="Category", max_length=64, required=False, widget=forms.NumberInput)
+    title = forms.CharField(
+        label="Item Title",
+        max_length=64,
+        required=True,
+        widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter the title of the item",
+        }),
+    )
+
+    description = forms.CharField(
+        label="Description",
+        max_length=350,
+        required=True,
+        widget=forms.Textarea(attrs={
+            "class": "form-control",
+            "placeholder": "Enter a detailed description of the item",
+            "rows": 4,
+        }),
+    )
+
+    image_url = forms.URLField(
+        label="Image URL",
+        required=False,
+        widget=forms.URLInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter a URL for the item image (optional)",
+        }),
+    )
+
+    price = forms.FloatField(
+        label="Price (USD)",
+        min_value=0.00,
+        required=True,
+        widget=forms.NumberInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter the price of the item",
+        }),
+    )
+
+    category = forms.CharField(
+        label="Category",
+        required=True,
+      widget=forms.TextInput(attrs={
+            "class": "form-control",
+            "placeholder": "Enter category",
+        }))
+
 
     def clean_title(self):
         title = self.cleaned_data["title"]
@@ -30,10 +73,10 @@ class CommentForm(forms.Form):
             required=False,
             widget=forms.Textarea(
                 attrs={
-                    'class': 'form-control',  # Bootstrap class for styling
+                    'class': 'form-control', 
                     'placeholder': 'Write your comment here...',
-                    'rows': 5,  # Adjust the height of the textarea
-                    'style': 'resize: none;',  # Disable resizing
+                    'rows': 5,  
+                    'style': 'resize: none;', 
                 }
             )
         )    
@@ -72,6 +115,34 @@ def items_in_category(request, category):
     return render(request, "auctions/category.html", {
         "categories": all_categories,
         "items": Item.objects.filter(category=category)
+    })
+
+
+@login_required
+def add_watchlist(request, item_id):
+    user = request.user
+    user.watchlist.add(item_id)
+    user.save()
+                       
+    return HttpResponseRedirect(reverse('watchlist'))
+
+
+@login_required
+def remove_watchlist(request, item_id):
+    user = request.user
+    user.watchlist.remove(item_id)
+    user.save()
+                       
+    return HttpResponseRedirect(reverse('watchlist'))
+
+
+@login_required
+def watchlist(request):
+    item_ids = request.user.watchlist.values_list('id', flat=True)
+    items = Item.objects.filter(id__in=item_ids)
+
+    return render(request, "auctions/watchlist.html", {
+        "items": items
     })
 
 
@@ -183,19 +254,19 @@ def create(request):
             
             return HttpResponseRedirect(reverse("index"))
         
-        else:
-            return render(request, "auctions/create.html", {
-                "form": form
-            })
-    else:
-        form = CreateItem()
+        return render(request, "auctions/create.html", {
+            "form": CreateItem()
+        })
             
     return render(request, "auctions/create.html", {
-            "form": form
+            "form": CreateItem()
         })
 
 
+        # Check if item is in watchlist
+
 def login_view(request):
+
     if request.method == "POST":
 
         # Attempt to sign user in

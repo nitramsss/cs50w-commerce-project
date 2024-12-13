@@ -1,9 +1,13 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.core.validators import MinValueValidator
 
 
 class User(AbstractUser):
-    pass
+    watchlist = models.ManyToManyField('Item', blank=True, related_name="watchlisted_by")
+
+    def __str__(self):
+        return f"{self.username}"
 
 
 class Item(models.Model):
@@ -20,7 +24,7 @@ class Item(models.Model):
 
 
 class Bid(models.Model):
-    bid = models.FloatField(default=0.00, null=False)
+    bid = models.FloatField(default=0.00, null=False, validators=[MinValueValidator(0.01)])
     bidder = models.ForeignKey(User, on_delete=models.CASCADE)
     item_bid = models.ForeignKey(Item, on_delete=models.CASCADE)
 
@@ -37,5 +41,3 @@ class Comment(models.Model):
     def __str__(self):
         return f"{self.comment}"
     
-
-

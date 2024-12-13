@@ -7,7 +7,7 @@
 
     <section class="item-details">
         <form action="{% url 'item' item.id %}" method="post">
-            <div class="card" style="width: 50rem;">
+            <div class="card" id="card-item" style="width: 50rem;">
                 <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.title }}">
                 <div class="card-body">
                     <h3 class="card-title">{{ item.title }}</h3>
@@ -27,6 +27,11 @@
                         {{ bidding_form }}
                     <div class="bid-button">
                         <button class="btn btn-outline-secondary" type="submit">Bid</button>
+                        {% if not watchlist %}
+                            <a href="{% url 'add_watchlist' item.pk %}"><button type="button" class="btn btn-success">Add to Watchlist</button></a>
+                        {% else %}
+                            <a href="{% url 'remove_watchlist' item.pk %}"><button type="button" class="btn btn-success">Remove in Watchlist</button></a>
+                        {% endif %}
                     </div>
                     {% endif %}
                 </div>

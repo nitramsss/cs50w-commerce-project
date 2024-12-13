@@ -16,12 +16,15 @@ body {
     align-items: center;
 }
 
-.comment-button {
+.comment-button {c
     display: flex;
     justify-content: end;
-    padding-top: 2px;
+    padding-top: 10px;
 }
 
+.btn {
+    min-width: 200px;
+}
 .user-comments {
     display: flex;
     flex-shrink: inherit;
@@ -32,9 +35,22 @@ body {
     margin: 10px 50px 50px 10px;
 }
 
+#card-item {
+    display: flex;
+    flex-wrap: wrap;
+    flex-shrink: inherit;
+
+}
+
 .active-items {
     /* border: 1px solid black; */
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
+}
+
+.bid-button {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
 }
