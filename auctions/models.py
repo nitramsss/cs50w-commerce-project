@@ -29,7 +29,7 @@ class Bid(models.Model):
     item_bid = models.ForeignKey(Item, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.bid}, {self.bidder}, {self.item_bid}"
+        return f"{self.bid}, {self.bidder}, {self.item_bid}"  
 
 
 class Comment(models.Model):

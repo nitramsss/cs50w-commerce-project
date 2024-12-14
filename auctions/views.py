@@ -80,18 +80,31 @@ class CommentForm(forms.Form):
                 }
             )
         )    
-
+    
 
 class BiddingForm(forms.Form):
-    bid = forms.FloatField(label="Bid", widget=forms.NumberInput)
-    item_id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+    bid = forms.FloatField(
+        label="Your Bid",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your bid',
+            'min': '0',  # Ensure positive numbers
+            'step': '0.01'  # Allow decimal bids
+        })
+    )
+    item_id = forms.IntegerField(
+        widget=forms.HiddenInput(),
+        required=False
+    )
 
     def check_bid(self):
         bid = self.cleaned_data["bid"]
         item_id = self.cleaned_data["item_id"]
-        item = Item.objects.filter(pk=item_id)
-        if bid <= item.price:
-            raise forms.ValidationError("Bid must be higher than the initial price and current highest bid.")
+        item = Item.objects.filter(pk=item_id).first()
+        if item and bid <= item.price:
+            raise forms.ValidationError(
+                "Bid must be higher than the initial price and current highest bid."
+            )
         return bid
 
 
@@ -154,7 +167,7 @@ def comment(request, item_id):
         if comment_form.is_valid():
             comment = comment_form.cleaned_data["comment"]
             commenter = request.user
-            item_commented = item_id
+            item_commented = Item.objects.get(pk=item_id)
 
             c = Comment(
                 comment=comment,
@@ -260,10 +273,10 @@ def create(request):
             item.save()
             
             return HttpResponseRedirect(reverse("index"))
-        
-        return render(request, "auctions/create.html", {
-            "form": CreateItem()
-        })
+        else:
+            return render(request, "auctions/create.html", {
+                "form": CreateItem()
+            })
             
     return render(request, "auctions/create.html", {
             "form": CreateItem()

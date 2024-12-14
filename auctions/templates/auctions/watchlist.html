@@ -10,9 +10,11 @@
                     <div class="card" style="width: 18rem;">
                         <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.title }}">
                         <div class="card-body">
-                        <h5 class="card-title">{{ item.title }}, {{ item.pk }}</h5>
-                        <p class="card-text">{{ item.description }}</p>
-                        <a href="{% url 'item' item.id %}" class="btn btn-primary">${{ item.price }}</a>
+                            <h5 class="card-title">{{ item.title }}, {{ item.pk }}</h5>
+                            <p class="card-text">{{ item.description }}</p>
+                        </div>
+                        <div class="card-button">
+                            <a href="{% url 'remove_watchlist' item.pk %}" class="btn btn-danger">Remove to Watchlist</a>
                         </div>
                     </div>
                 </a>
