@@ -180,22 +180,14 @@ def comment(request, item_id):
 
 
 @login_required
-def bidding(request, item_id, item_price):
+def bidding(request, item_id):
+    item = Item.objects.get(pk=item_id)
+
     if request.method == "POST":
         bidding_form = BiddingForm(request.POST)
 
-        if bidding_form.is_valid() and float(bidding_form.cleaned_data["bid"]) > item_price:
-            bid = bidding_form.cleaned_data["bid"]
-            bidder = request.user
-            item_bid = item_id
-
-            b = Bid(
-                bid=bid,
-                bidder=bidder,
-                item_bid=item_bid
-            )
-            b.save()
-            return HttpResponseRedirect(reverse('item', args=[item_id]))
+        if bidding_form.is_valid():
+           pass
         else:
             return render(request, "auctions/item.html", {
                 "message": "Bid must be higher than the current price of the item"
@@ -204,11 +196,17 @@ def bidding(request, item_id, item_price):
 
 
 @login_required
-def close_item(request, item_id):    
-    if request.method == "POST":
-        item = Item.objects.get(pk=item_id)
-        item.is_active = False
-        item.save()
+def close_item(request, item_id, bidder_id):
+
+    bid = Bid.objects.get(pk=item_id)
+    item = Item.objects.get(pk=item_id)
+    
+    item.is_active = False
+    item.save()
+
+
+    
+    item.owner = bid.bidder
     
     return HttpResponseRedirect(reverse('item', args=[item_id]))
         
@@ -220,26 +218,66 @@ def item(request, item_id):
     item = Item.objects.get(pk=item_id)
     highest_bid = Bid.objects.filter(item_bid=item).order_by('-bid').first()
     bidder = highest_bid.bidder if highest_bid else None
-
-    # Assign the price for the item
-    if highest_bid and float(item.price) < float(highest_bid):
-        item.price = highest_bid
-        item.save()
-
+    message = None
 
     in_watchlist = request.user.watchlist.filter(pk=item_id).exists()
 
+    # Assign the price for the item
+    if highest_bid and float(item.price) < float(highest_bid.bid):
+        item.price = float(highest_bid.bid)
+        item.save()
     
+    bidding_form = BiddingForm()
+    comment_form = CommentForm()
+
+    if request.method == "POST":
+        form = BiddingForm(request.POST)
+        if form.is_valid():
+            bid = form.cleaned_data["bid"]
+            bidder = request.user
+            item_bid = item
+
+            
+            if float(bid) >= item.price and not Bid.objects.filter(item_bid__pk=item_id).exists():
+                b = Bid(
+                    bid=float(bid),
+                    bidder=bidder,
+                    item_bid=item_bid
+                )
+                b.save()    
+
+                item.price = float(bid)
+                item.save()
+                
+                message = "Bid successfully!"
+
+            elif float(bid) > item.price:
+                b = Bid(
+                    bid=float(bid),
+                    bidder=bidder,
+                    item_bid=item_bid
+                )
+                b.save()   
+
+                item.price = float(bid)
+                item.save()
+
+                message = "Bid successfully!"
+            else:
+                message = "Bid must be higher than the current price of the item."
+
+        else:
+            bidding_form = BiddingForm()
+
     return render(request, "auctions/item.html", {
-        "comment_form": CommentForm(),
-        "bidding_form": BiddingForm(),
-        # "message": message,
+        "comment_form": comment_form,
+        "bidding_form": bidding_form,
+        "message": message,
         "watchlist": in_watchlist,
         "item": item,
         "comments": Comment.objects.filter(item_commented=item_id)
     })
 
-        # Owner of the item must be able to delete their comments
 
 
 @login_required
