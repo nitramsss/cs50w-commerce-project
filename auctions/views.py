@@ -118,7 +118,7 @@ def category(request):
     all_categories = Item.objects.values("category").distinct()
 
     return render(request, "auctions/category.html", {
-        "categories": all_categories 
+        "categories": all_categories
     })
 
 
@@ -226,19 +226,13 @@ def item(request, item_id):
         item.price = highest_bid
         item.save()
 
-    # Initialized form
-    _comment_form = CommentForm()
-    _bidding_form = BiddingForm()
 
-    user_watchlists = User.objects.values_list('watchlist', flat=True)
-    in_watchlist = False
-    if item.id in user_watchlists:
-        in_watchlist = True
+    in_watchlist = request.user.watchlist.filter(pk=item_id).exists()
 
     
     return render(request, "auctions/item.html", {
-        "comment_form": _comment_form,
-        "bidding_form": _bidding_form,
+        "comment_form": CommentForm(),
+        "bidding_form": BiddingForm(),
         # "message": message,
         "watchlist": in_watchlist,
         "item": item,

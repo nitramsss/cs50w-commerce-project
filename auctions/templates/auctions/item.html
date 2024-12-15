@@ -31,7 +31,7 @@
                         {% if not watchlist %}
                             <a href="{% url 'add_watchlist' item.pk %}"><button type="button" class="btn btn-success">Add to Watchlist</button></a>
                         {% else %}
-                            <a href="{% url 'remove_watchlist' item.pk %}"><button type="button" class="btn btn-success">Remove in Watchlist</button></a>
+                            <a href="{% url 'remove_watchlist' item.pk %}"><button type="button" class="btn btn-danger">Remove from Watchlist</button></a>
                         {% endif %}
                     </div>
                     {% endif %}
