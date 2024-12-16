@@ -66,3 +66,9 @@ a {
     justify-content: space-between;
     margin-top: 10px;
 }
+
+.login-to-comment {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

@@ -11,6 +11,8 @@
                 <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.title }}">
                 <div class="card-body">
                     <h3 class="card-title">{{ item.title }}</h3>
+                    No. of bid for this item: {{ bid_count }}
+
                     {% if not owner %}
                         <h5 class="card-price">Price: ${{ item.price|floatformat:2 }}</h5>
                     {% endif %}
@@ -23,10 +25,13 @@
                             <button class="btn btn-outline-secondary" type="submit">Close Bidding</button>
                         </div>
                     {% else %}
-                        {% csrf_token %}
-                        {{ bidding_form }}
+                        {% if authenticated %}
+                            {% csrf_token %}
+                            {{ bidding_form }}
                     <div class="bid-button">
                         <button class="btn btn-outline-secondary" type="submit">Bid</button>
+                        {% endif %}
+
                         {% if not watchlist %}
                             <a href="{% url 'add_watchlist' item.pk %}"><button type="button" class="btn btn-success">Add to Watchlist</button></a>
                         {% else %}
@@ -34,44 +39,47 @@
                         {% endif %}
                     </div>
                     {% endif %}
-                        No. of bid for this item: {{ bid_count }}
                 </div>
             </div>
         </form>
+
     </section>
     
 
     <hr>
-    {% if not comments %}
-        <h4>You are the first one to comment in this item.</h4>
-        <form action="{% url 'item' item.id %}" method="post">
-            {% csrf_token %}
-            {{ comment_form }}
-            <div class="comment-button">
-                <button class="btn btn-outline-secondary" type="button">Comment</button>
-            </div>
-        </form>
-    {% else %}
-        <section class="user-comments">
-            {% for comment in comments %}
-                <div class="card">
-                    <div class="card-header">{{ comment.date_commented }}</div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ comment.commenter }}</h5>
-                        <p class="card-text">{{ comment.comment }}</p>
-                        <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
-                    </div>
+    {% if authenticated %}
+        {% if not comments %}
+            <h4>You are the first one to comment in this item.</h4>
+            <form action="{% url 'item' item.id %}" method="post">
+                {% csrf_token %}
+                {{ comment_form }}
+                <div class="comment-button">
+                    <button class="btn btn-outline-secondary" type="button">Comment</button>
                 </div>
-            {% endfor %}
-        </section>
-        <hr>
-        <form action="{% url 'comment' item.id %}" method="post">
-            {% csrf_token %}
-            {{ comment_form }}
-            <div class="comment-button">
-                <button class="btn btn-outline-secondary" type="submit">Comment</button>
-            </div>
-        </form>
+            </form>
+        {% else %}
+            <section class="user-comments">
+                {% for comment in comments %}
+                    <div class="card">
+                        <div class="card-header">{{ comment.date_commented }}</div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ comment.commenter }}</h5>
+                            <p class="card-text">{{ comment.comment }}</p>
+                            <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+                        </div>
+                    </div>
+                {% endfor %}
+            </section>
+            <hr>
+            <form action="{% url 'comment' item.id %}" method="post">
+                {% csrf_token %}
+                {{ comment_form }}
+                <div class="comment-button">
+                    <button class="btn btn-outline-secondary" type="submit">Comment</button>
+                </div>
+            </form>
+        {% endif %}
+    {% else %}
+            <div class="login-to-comment"><a href="{% url 'login' %}">Login to comment.</a></div>
     {% endif %}
-
 {% endblock %}

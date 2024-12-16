@@ -7,7 +7,7 @@
         </button>
         <ul class="dropdown-menu">
             {% for category in categories %}
-                <li><a class="dropdown-item" href="{% url 'items_in_category' category.category %}">{{ category.category }}</a></li>
+                <li><a class="dropdown-item" href="{% url 'items_in_category' category.category %}">{{ category.category|title }}</a></li>            
             {% endfor %}
         </ul>       
       </div>
