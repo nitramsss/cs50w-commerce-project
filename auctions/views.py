@@ -218,6 +218,8 @@ def item(request, item_id):
     item = Item.objects.get(pk=item_id)
     highest_bid = Bid.objects.filter(item_bid=item).order_by('-bid').first()
     bidder = highest_bid.bidder if highest_bid else None
+    
+    bid_count = Bid.objects.filter(item_bid=item).count()    
     message = None
 
     in_watchlist = request.user.watchlist.filter(pk=item_id).exists()
@@ -248,9 +250,10 @@ def item(request, item_id):
 
                 item.price = float(bid)
                 item.save()
-                
-                message = "Bid successfully!"
 
+                bid_count = Bid.objects.filter(item_bid=item).count()    
+
+                message = "Bid successfully!"
             elif float(bid) > item.price:
                 b = Bid(
                     bid=float(bid),
@@ -261,6 +264,8 @@ def item(request, item_id):
 
                 item.price = float(bid)
                 item.save()
+
+                bid_count = Bid.objects.filter(item_bid=item).count()    
 
                 message = "Bid successfully!"
             else:
@@ -275,6 +280,7 @@ def item(request, item_id):
         "message": message,
         "watchlist": in_watchlist,
         "item": item,
+        "bid_count": bid_count,
         "comments": Comment.objects.filter(item_commented=item_id)
     })
 
