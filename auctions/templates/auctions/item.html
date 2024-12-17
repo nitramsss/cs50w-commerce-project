@@ -18,26 +18,31 @@
                     {% endif %}
 
                     <p class="card-text">{{ item.description }}</p>
-                    {% if owner %}
+                    <p class="card-text">Owner: {{ item.owner }}</p>
+
+                    {% if request.user == item.owner and item.is_active == True %}
                         {% csrf_token %}
                         <input id="titlearea" type="text" name="title" value="${{ item.price }}" readonly>
                         <div class="bid-button">
-                            <button class="btn btn-outline-secondary" type="submit">Close Bidding</button>
+                            <a href="{% url 'itemclose' item.id %}">
+                                <button class="btn btn-outline-secondary" type="button">Close Bidding</button>
+                            </a>
                         </div>
                     {% else %}
-                        {% if user.is_authenticated %}
+                        {% if user.is_authenticated and request.user != item.owner %}
                             {% csrf_token %}
                             {{ bidding_form }}
-                    <div class="bid-button">
-                        <button class="btn btn-outline-secondary" type="submit">Bid</button>
-                        {% endif %}
+                        <div class="bid-button">
+                            <button class="btn btn-outline-secondary" type="submit">Bid</button>
+                        
 
-                        {% if not watchlist %}
-                            <a href="{% url 'add_watchlist' item.pk %}"><button type="button" class="btn btn-success">Add to Watchlist</button></a>
-                        {% else %}
-                            <a href="{% url 'remove_watchlist' item.pk %}"><button type="button" class="btn btn-danger">Remove from Watchlist</button></a>
+                            {% if not watchlist %}
+                                <a href="{% url 'add_watchlist' item.pk %}"><button type="button" class="btn btn-success">Add to Watchlist</button></a>
+                            {% else %}
+                                <a href="{% url 'remove_watchlist' item.pk %}"><button type="button" class="btn btn-danger">Remove from Watchlist</button></a>
+                            {% endif %}
+                        </div>
                         {% endif %}
-                    </div>
                     {% endif %}
                 </div>
             </div>

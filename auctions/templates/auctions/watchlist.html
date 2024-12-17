@@ -2,23 +2,23 @@
 
 {% block body %}
     <section class="active-items">
-        {% if not items %}
-            <h3>No items in your watchlist yet.</h3>
-        {% else %}
+        {% if items and item.is_active == True %}
             {% for item in items %}
-                <a href="{% url 'item' item.pk %}">
-                    <div class="card" style="width: 18rem;">
-                        <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.title }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ item.title }}, {{ item.pk }}</h5>
-                            <p class="card-text">{{ item.description }}</p>
+                    <a href="{% url 'item' item.pk %}">
+                        <div class="card" style="width: 18rem;">
+                            <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.title }}">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ item.title }}, {{ item.pk }}</h5>
+                                <p class="card-text">{{ item.description }}</p>
+                            </div>
+                            <div class="card-button">
+                                <a href="{% url 'remove_watchlist' item.pk %}" class="btn btn-danger">Remove from Watchlist</a>
+                            </div>
                         </div>
-                        <div class="card-button">
-                            <a href="{% url 'remove_watchlist' item.pk %}" class="btn btn-danger">Remove from Watchlist</a>
-                        </div>
-                    </div>
-                </a>
+                    </a>
             {% endfor %}
+        {% else %}
+            <h3>No items in your watchlist yet.</h3>
         {% endif %}
     </section>
 {% endblock %}

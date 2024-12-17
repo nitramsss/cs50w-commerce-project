@@ -88,8 +88,8 @@ class BiddingForm(forms.Form):
         widget=forms.NumberInput(attrs={
             'class': 'form-control',
             'placeholder': 'Enter your bid',
-            'min': '0',  # Ensure positive numbers
-            'step': '0.01'  # Allow decimal bids
+            'min': '0',  
+            'step': '0.01'  
         })
     )
     item_id = forms.IntegerField(
@@ -113,6 +113,10 @@ def index(request):
         "items": Item.objects.filter(is_active=True)
     })
 
+def own_item(request):
+    return render(request, "auctions/own.html", {
+        "items": Item.objects.filter(owner=request.user)
+    })
 
 def category(request):
     all_categories = Item.objects.values("category").distinct()
@@ -180,18 +184,18 @@ def comment(request, item_id):
 
 
 @login_required(login_url='login')
-def close_item(request, item_id, bidder_id):
-
-    bid = Bid.objects.get(pk=item_id)
+def close_item(request, item_id):
+    # get the highest bid and bidder
     item = Item.objects.get(pk=item_id)
-    
+    highest_bid = Bid.objects.filter(item_bid=item).order_by('-bid').first()
+    bidder = highest_bid.bidder
+
+    # make the bidder own that item
+    item.owner = bidder
+
     item.is_active = False
     item.save()
 
-
-    
-    item.owner = bid.bidder
-    
     return HttpResponseRedirect(reverse('item', args=[item_id]))
         
 
@@ -203,7 +207,10 @@ def item(request, item_id):
     bidder = highest_bid.bidder if highest_bid else None
     
     bid_count = Bid.objects.filter(item_bid=item).count()    
-    message = None
+    message = "You owned the item." if request.user == item.owner and item.is_active == True \
+            else "You won the item." if request.user == item.owner and item.is_active == False\
+            else None
+    
     in_watchlist = False
 
     # Assign the price for the item
